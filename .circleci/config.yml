@@ -95,6 +95,7 @@ jobs:
             npm install
             # npm install oauth-sign@^0.9.0
             npm install --save-dev webpack@5.73.0
+            npm update mkdirp --depth 2
             npm update path-parse --depth 3
             npm update kind-of --depth 14
             npm audit fix --audit-level=critical --force
