@@ -133,4 +133,6 @@ workflows:
       - scan-backend:
           requires:
             - build-backend
+      - slack-notification:
+          requires:
             - slack/on-hold
