@@ -133,4 +133,4 @@ workflows:
       - scan-backend:
           requires:
             - build-backend
-            - - slack/on-hold
+            - slack/on-hold
