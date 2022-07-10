@@ -1,5 +1,8 @@
 version: 2.1
 
+orbs:
+  slack: circleci/slack@4.
+
 jobs:
   build-frontend:
     docker:
@@ -94,7 +97,18 @@ jobs:
             npm audit fix --audit-level=critical --force
             # If the "npm audit fix" command above could not fix all critical vulnerabilities, try “npm audit fix --force” again
             npm audit --audit-level=critical
-
+  slack-notification:
+    docker:
+      - image: 'cimg/base:stable'
+    steps:
+      - run: echo "deploy my app"
+      - slack/notify:
+          event: fail
+          mentions: '@EngineeringTeam'
+          template: basic_fail_1
+      - slack/notify:
+          event: pass
+          template: success_tagged_deploy_1
 workflows:
   default:
     jobs:
@@ -106,9 +120,17 @@ workflows:
       - test-backend:
           requires:
             - build-backend
+      - slack/on-hold:
+          context: slack-secrets
+          filters:
+            tags:
+              only: /^v.*/
+          requires:
+            - test-backend
       - scan-frontend:
           requires:
             - build-frontend
       - scan-backend:
           requires:
             - build-backend
+            - - slack/on-hold
