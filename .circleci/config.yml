@@ -158,7 +158,7 @@ jobs:
           paths:
             - cicdproject/.circleci/ansible/inventory.txt
       - destroy-environment
-        when: on_fail      
+              
 
 workflows:
   default:
