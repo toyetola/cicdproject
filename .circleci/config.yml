@@ -154,9 +154,9 @@ jobs:
           command: |
             yum install -y tar gzip
       - persist_to_workspace:
-          root: .
-          paths:
-            - .
+          root: ~/
+          paths: 
+            - cicdproject/.circleci/ansible/inventory.txt
       - destroy-environment
               
 
