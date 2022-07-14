@@ -156,7 +156,7 @@ jobs:
       - persist_to_workspace:
           root: ~/
           paths:
-            - cicdproject/.circleci/ansible/inventory.txt
+            - .
       - destroy-environment
               
 
