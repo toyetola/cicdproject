@@ -232,7 +232,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            npm install tar, gzip, ansible
+            npm install
       - run:
           name: Deploy backend
           command: |
