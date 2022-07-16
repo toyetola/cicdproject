@@ -267,7 +267,7 @@ workflows:
           requires:
             - build-backend
       - deploy-infrastructure
-      - configure-infrastructure
+      - configure-infrastructure:
           requires:
             - deploy-infrastructure
       - run-migrations
