@@ -270,6 +270,12 @@ workflows:
       - configure-infrastructure:
           requires:
             - deploy-infrastructure
-      - run-migrations
-      - deploy-frontend
-      - deploy-backend
+      - run-migrations:
+          requires:
+            - configure-infrastructure
+      - deploy-frontend:
+          requires:
+            - configure-infrastructure
+      - deploy-backend:
+          requires:
+            - run-migrations
