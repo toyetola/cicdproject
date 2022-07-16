@@ -223,7 +223,7 @@ jobs:
                     
   deploy-backend:
     docker:
-      python:3.7-alpine3.11
+      - image: python:3.7-alpine3.11
     steps:
       - checkout
       - add_ssh_keys:
