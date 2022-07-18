@@ -247,34 +247,6 @@ jobs:
             ansible-playbook -i inventory.txt deploy-backend.yml
       - destroy-environment
               
-  smoke-test:
-    docker:
-      # Lightweight Docker image 
-    steps:
-      - checkout
-      - run:
-          name: Install dependencies
-          command: |
-            # your code here
-      - run:
-          name: Get backend url
-          command: |
-            export API_URL="http://${BACKEND_IP}:3030"
-            echo "${API_URL}"
-      - run:
-          name: Backend smoke test.
-          command: |
-            if curl "${API_URL}/api/status" | grep "ok"
-            then
-                return 0
-            else
-                return 1
-            fi
-      - run:
-          name: Frontend smoke test.
-          command: |
-            # your code here
-      - destroy-environment
 
 workflows:
   default:
