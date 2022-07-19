@@ -285,6 +285,9 @@ jobs:
       - run:
           name: Backend smoke test.
           command: |
+            export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress --filters=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0.7} --output=text')
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "${API_URL}"
             URL="${API_URL}"
             # Test if website exists
             if curl -s --head ${URL} 
@@ -297,9 +300,9 @@ jobs:
           name: Frontend smoke test.
           command: |
             export FRONTEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress --filters=tage:Name,Values=frontend-${CIRCLE_WORKFLOW_ID:0.7} --output=text')
-            export API_URL="http://${FRONTEND_IP}"
-            echo "${API_URL}"
-            URL="${API_URL}"
+            export FRONTEND_URL="http://${FRONTEND_IP}"
+            echo "${FRONTEND_URL}"
+            URL="${FRONTEND_URL}"
             if curl -s --head ${URL} 
             then
               return 0
