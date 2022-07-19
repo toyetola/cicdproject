@@ -203,13 +203,26 @@ jobs:
           name: Install dependencies
           command: |
             cd frontend
-            npm install
+            yum install sudo -y
+            yum -y install tar gzip
+            yum makecache
+            yum install curl.x86_64
+      - run:
+          name: Install Nodejs and NPM
+          command: |
+            yum install -y gcc-c++ make
+            curl -sL https://rpm.nodesource.com/setup_13.x |sudo -E bash -
+            sudo yum install -y nodejs
+      - attach_workspace:
+          at: ~/tmp
       - run:
           name: Get backend url
           command: |
-            export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress --filters=tage:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0.7}')
+            export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress --filters=tage:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0.7} --output=text')
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
+            echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
+            cat frontend/.env
       - run:
           name: Deploy frontend objects
           command: |
@@ -227,11 +240,17 @@ jobs:
       - checkout
       - add_ssh_keys:
           fingerprints: ["39:cf:c2:25:5f:bf:4e:3f:9a:29:2e:40:0e:35:74:5a"] 
-      # attach workspace
+      - attach_workspace:
+          at: ~/tmp
       - run:
           name: Install dependencies
           command: |
-            npm install
+            apk add --update ansible
+            apk add --update openssh-server
+            apk add --no-cache tar gzip curl
+            apk add --update nodejs npm
+            apk --no-cache add --virtual builds-deps build-base python3
+            pip install --upgrade pip && pip install --upgrade awscli
       - run:
           name: Deploy backend
           command: |
