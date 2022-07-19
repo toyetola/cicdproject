@@ -107,7 +107,7 @@ jobs:
             cd backend
             npm install
             npm audit fix --audit-level=critical --force
-            npm audit fix 
+            npm audit fix --force 
             npm audit --audit-level=critical
   slack-notification:
     docker:
@@ -147,6 +147,7 @@ jobs:
           command: |
             aws ec2 describe-instances \
               --query "Reservations[*].Instances[*].PublicIpAddress" \
+              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}\
               --output=text >> .circleci/ansible/inventory.txt
       - run:
           name: Install tar utility
@@ -218,7 +219,7 @@ jobs:
       - run:
           name: Get backend url
           command: |
-            export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress --filters=tage:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0.7} --output=text')
+            export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0.7}" --output=text)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
             echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
@@ -282,13 +283,13 @@ jobs:
       - run:
           name: Get backend url
           command: |
-            export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0.7} --output=text)
+            export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0.7}" --output=text)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
       - run:
           name: Backend smoke test.
           command: |
-            # export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0.7} --output=text)
+            # export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0.7}" --output=text)
             #export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
             URL="${API_URL}"
