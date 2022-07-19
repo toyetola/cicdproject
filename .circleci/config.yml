@@ -265,6 +265,47 @@ jobs:
             cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml
       - destroy-environment
+  smoke-test:
+    docker:
+      - image: alpine:latest
+    steps:
+      checkout
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update curl
+            apk add --update nodejs npm
+      - run:
+          name: Get backend url
+          command: |
+            export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress --filters=tage:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0.7} --output=text')
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "${API_URL}"
+      - run:
+          name: Backend smoke test.
+          command: |
+            URL="${API_URL}"
+            # Test if website exists
+            if curl -s --head ${URL} 
+            then
+              return 0
+            else
+              return 1
+            fi
+      - run:
+          name: Frontend smoke test.
+          command: |
+            export FRONTEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress --filters=tage:Name,Values=frontend-${CIRCLE_WORKFLOW_ID:0.7} --output=text')
+            export API_URL="http://${FRONTEND_IP}:3030"
+            echo "${API_URL}"
+            URL="${API_URL}"
+            if curl -s --head ${URL} 
+            then
+              return 0
+            else
+              return 1
+            fi
+      - destroy-environment
               
 
 workflows:
@@ -299,3 +340,6 @@ workflows:
       - deploy-backend:
           requires:
             - run-migrations
+      - smoke-test:
+          requires:
+            - deploy-backend
