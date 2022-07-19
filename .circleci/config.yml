@@ -288,7 +288,7 @@ jobs:
       - run:
           name: Backend smoke test.
           command: |
-            export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress --filters=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0.7} --output=text')
+            # export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress --filters=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0.7} --output=text')
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
             URL="${API_URL}"
@@ -302,13 +302,11 @@ jobs:
       - run:
           name: Frontend smoke test.
           command: |
-            export FRONTEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress --filters=tage:Name,Values=frontend-${CIRCLE_WORKFLOW_ID:0.7} --output=text')
-            export FRONTEND_URL="http://${FRONTEND_IP}"
-            echo "${FRONTEND_URL}"
-            URL="${FRONTEND_URL}"
+            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employees"
+            echo ${URL}
             if curl -s --head ${URL} 
             then
-              return 0
+              return 1
             else
               return 1
             fi
