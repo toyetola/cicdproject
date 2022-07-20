@@ -4,6 +4,15 @@ orbs:
   slack: circleci/slack@4.1
 
 commands:
+  install-awscli:
+    description: Install AWS CLI
+    steps:
+      - run:
+          name: Install AWS CLI
+          command: |
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
@@ -37,6 +46,15 @@ commands:
              npm install
              npm run migrations:revert
             fi
+  install-ansible:
+    description: Install Ansible
+    steps:
+      - run:
+          name: Install Ansible
+          commands: |
+            sudo apt update
+            sudo apt install software-properties-common-y
+            sudo add-apt-repository ---yes --update ppa:ansible/ansible
 
 jobs:
   build-frontend:
@@ -233,6 +251,7 @@ jobs:
             yum -y install tar gzip
             yum makecache
             yum install curl.x86_64
+      - install-ansible
       - run:
           name: Install Nodejs and NPM
           command: |
@@ -244,7 +263,10 @@ jobs:
       - run:
           name: Get backend url
           command: |
-            export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0.7}" --output=text)
+            export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' \
+            --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0.7}" \
+            --output=text
+            )
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
             echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
@@ -257,7 +279,8 @@ jobs:
             npm run build
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
-      - destroy-environment      
+      - destroy-environment
+      - revert-migrations      
                     
   deploy-backend:
     docker:
@@ -281,16 +304,23 @@ jobs:
           name: Deploy backend
           command: |
             cd backend
+
             npm i
             npm run build
             cd ..
-            # Zip the directory
-            tar -C backend -czvf artifact.tar.gz .
+
             cd .circleci/ansible
+            mkdir files
+            cd files
+            # Zip the directory
+            tar -C ../../../backend -czvf artifact.tar.gz .
+            cd ../
+            
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml
       - destroy-environment
+      - revert-migrations
   smoke-test:
     docker:
       - image: alpine:latest
@@ -367,7 +397,7 @@ workflows:
             - configure-infrastructure
       - deploy-frontend:
           requires:
-            - configure-infrastructure
+            - run-migrations
       - deploy-backend:
           requires:
             - run-migrations
