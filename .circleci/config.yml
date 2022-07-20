@@ -6,8 +6,10 @@ orbs:
 commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
-    # parameters:
-      # Add parameter here   
+    parameters:
+      workflow_id:
+        default: "${CIRCLE_WORKFLOW_ID:0:7}"
+        type: string   
     steps:
       - run:
           name: Destroy environments
@@ -15,6 +17,26 @@ commands:
           command: |
             aws cloudformation delete-stack --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}
             aws cloudformation delete-stack --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}
+            aws s3 rm s3://udapeople-<<parameters.workflow_id>> --recursive
+  revert-migrations:
+    description: Revert the last migration if successfully run in the current workflow.
+    parameters:
+      workflow_id:
+        default: "${CIRCLE_WORKFLOW_ID:0:7}"
+        type: string     
+    steps:
+      - run:
+          name: Revert migrations
+          when: on_fail
+          command: |
+            # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
+            SUCCESS = $(curl --insecure "https://kvdb.io/P7BTSfaGCJuuHTayHeu7yn/migration_<<parameters.workflow_id>>")
+            if(( $SUCCESS==1 )); 
+            then
+             cd ~/project/backend
+             npm install
+             npm run migrations:revert
+            fi
 
 jobs:
   build-frontend:
@@ -153,10 +175,10 @@ jobs:
           name: Install tar utility
           command: |
             yum install -y tar gzip
-      # persist_to_workspace:
-      #     root: ~/
-      #     paths: 
-      #       - cicdproject/.circleci/ansible/inventory.txt
+      - persist_to_workspace:
+          root: ~/
+          paths: 
+            - project/.circleci/ansible/inventory.txt
       - destroy-environment
   configure-infrastructure:
     docker:
@@ -165,6 +187,8 @@ jobs:
       - checkout
       - add_ssh_keys:
           fingerprints: ["39:cf:c2:25:5f:bf:4e:3f:9a:29:2e:40:0e:35:74:5a"]
+      - attach_workspace:
+          at: ~/
       - run:
           name: Install dependencies
           command: |
@@ -194,7 +218,8 @@ jobs:
               #generated ID from kvdb.io 
               curl https://kvdb.io/P7BTSfaGCJuuHTayHeu7yn/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi
-      - destroy-environment    
+      - destroy-environment
+      - revert-migrations    
   deploy-frontend:
     docker:
       - image: 'amazon/aws-cli'
