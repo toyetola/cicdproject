@@ -53,6 +53,8 @@ commands:
           name: Install Ansible
           command: |
             yum install sudo -y
+            wget http://security.ubuntu.com/ubuntu/pool/main/a/apt/apt_1.0.1ubuntu2.17_amd64.deb -O apt.describe
+            sudo dpkg -i apt.deb
             sudo apt update
             sudo apt install software-properties-common-y
             sudo add-apt-repository ---yes --update ppa:ansible/ansible
@@ -346,7 +348,7 @@ jobs:
           name: Backend smoke test.
           command: |
             # export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0.7}" --output=text)
-            #export API_URL="http://${BACKEND_IP}:3030"
+            export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
             URL="${API_URL}"
             # Test if website exists
