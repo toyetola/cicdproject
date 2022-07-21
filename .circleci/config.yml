@@ -53,6 +53,7 @@ commands:
           name: Install Ansible
           command: |
             yum install sudo -y
+            sudo yum install wget
             wget http://security.ubuntu.com/ubuntu/pool/main/a/apt/apt_1.0.1ubuntu2.17_amd64.deb -O apt.describe
             sudo dpkg -i apt.deb
             sudo apt update
