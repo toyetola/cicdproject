@@ -12,6 +12,7 @@ commands:
           command: |
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
             unzip awscliv2.zip
+            yum install sudo -y
             sudo ./aws/install
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
@@ -337,6 +338,7 @@ jobs:
             apk add --update curl unzip
             apk add --update nodejs npm
             apk --no-cache add --virtual builds-deps build-base python3
+            yum install sudo -y
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
             unzip awscliv2.zip
             sudo ./aws/install
@@ -354,7 +356,7 @@ jobs:
             echo "${API_URL}"
             URL="${API_URL}"
             # Test if website exists
-            if curl -s --head ${URL} 
+            if curl "${URL}/api/status" | grep "ok" 
             then
               return 0
             else
