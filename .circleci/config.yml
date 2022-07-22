@@ -338,9 +338,10 @@ jobs:
           name: Install dependencies
           command: |
             apk add --update curl unzip
-            apk add --update nodejs npm pip
+            apk add --update nodejs npm
             apk add --update sudo
             apk --no-cache add --virtual builds-deps build-base python3
+            yum install python-pip
             python3 -m pip install awscliv2
             ~/.local/bin/awscliv2 --install
             aws --version
