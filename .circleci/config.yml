@@ -341,6 +341,7 @@ jobs:
             apk add --update nodejs npm
             apk add --update sudo
             apk --no-cache add --virtual builds-deps build-base python3
+            apk add --update yum
             yum install python-pip
             python3 -m pip install awscliv2
             ~/.local/bin/awscliv2 --install
@@ -431,3 +432,4 @@ workflows:
       - smoke-test:
           requires:
             - deploy-backend
+            - deploy-frontend
