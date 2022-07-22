@@ -20,6 +20,7 @@ commands:
         default: "${CIRCLE_WORKFLOW_ID:0:7}"
         type: string   
     steps:
+      - install-awscli
       - run:
           name: Destroy environments
           when: on_fail
