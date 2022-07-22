@@ -333,7 +333,7 @@ jobs:
           name: Install dependencies
           command: |
             apk add --update curl unzip
-            apk add --update nodejs npm awscli
+            apk add --update nodejs npm
             apk --no-cache add --virtual builds-deps build-base python3
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
             unzip awscliv2.zip
