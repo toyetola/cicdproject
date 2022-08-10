@@ -346,18 +346,20 @@ jobs:
       - image: cimg/base:2022.08
     steps:
       - checkout
-      - run:
-          name: Install dependencies
-          command: |
-            apk add --update curl unzip
-            apk add --update nodejs npm
-            apk add --update sudo
-            apk --no-cache add --virtual builds-deps build-base python3
-            apt-get  install yum
-            yum install python-pip
-            python3 -m pip install awscliv2
-            ~/.local/bin/awscliv2 --install
-            aws --version
+      # - run:
+      #     name: Install dependencies
+      #     command: |
+      #       apk add --update curl unzip
+      #       apk add --update nodejs npm
+      #       apk add --update sudo
+      #       apk --no-cache add --virtual builds-deps build-base python3
+      #       apt-get  install yum
+      #       yum install python-pip
+      #       python3 -m pip install awscliv2
+      #       ~/.local/bin/awscliv2 --install
+      #       aws --version
+      - install-awscli
+      - install_nodejs
       - run:
           name: Get backend url
           command: |
