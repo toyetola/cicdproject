@@ -343,7 +343,7 @@ jobs:
       - revert-migrations
   smoke-test:
     docker:
-      - image: cimg/base:2022.08
+      - image: cimg/base:stable
     steps:
       - checkout
       # - run:
