@@ -343,14 +343,23 @@ jobs:
       - revert-migrations
   smoke-test:
     docker:
-      - image: python:3.7-alphine3.16
+      - image: python:3.7-alpine3.16
     steps:
       - checkout
       - run:
           name: Install dependencies
           command: |
             apk add --update --no-cache curl aws-cli
-       
+      #       apk add --update curl unzip
+      #       apk add --update nodejs npm
+      #       apk add --update sudo
+      #       apk --no-cache add --virtual builds-deps build-base python3
+      #       apt-get  install yum
+      #       yum install python-pip
+      #       python3 -m pip install awscliv2
+      #       ~/.local/bin/awscliv2 --install
+      #       aws --version
+      
       - run:
           name: Get backend url
           command: |
